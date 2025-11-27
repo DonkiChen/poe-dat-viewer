@@ -17,7 +17,8 @@ const TRANSLATIONS = [
   { name: 'Russian', path: 'Data/Russian' },
   { name: 'Spanish', path: 'Data/Spanish' },
   { name: 'Thai', path: 'Data/Thai' },
-  { name: 'Traditional Chinese', path: 'Data/Traditional Chinese' }
+  { name: 'Traditional Chinese', path: 'Data/Traditional Chinese' },
+  { name: 'Simplified Chinese', path: 'Data/Simplified Chinese' },
 ]
 const TRANSLATIONS_NONE = TRANSLATIONS[0]
 
@@ -46,9 +47,11 @@ export async function exportTables (
     loader.clearBundleCache()
     for (const target of config.tables) {
       console.log(`Exporting table "${tr.path}/${target.name}"`)
-      const datFile = readDatFile('.datc64',
-        await loader.tryGetFileContents(`${tr.path}/${target.name}.datc64`) ??
-        await loader.getFileContents(`${TRANSLATIONS_NONE.path}/${target.name}.datc64`))
+      const fileContents = await loader.tryGetFileContents(`${tr.path}/${target.name}.datc64`) ??
+                           await loader.getFileContents(`${TRANSLATIONS_NONE.path}/${target.name}.datc64`)
+      // Convert Uint8Array to ArrayBufferLike for readDatFile
+      const arrayBufferLike = fileContents.buffer.slice(fileContents.byteOffset, fileContents.byteOffset + fileContents.byteLength)
+      const datFile = readDatFile('.datc64', arrayBufferLike)
       const headers = importHeaders(target.name, datFile, config, schema)
         .filter(hdr => target.columns.includes(hdr.name))
 

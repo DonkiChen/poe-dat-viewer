@@ -87,7 +87,7 @@ export class CdnBundleLoader {
     try {
       await fs.access(cachedFilePath)
       const bundleBin = await fs.readFile(cachedFilePath)
-      return bundleBin
+      return new Uint8Array(bundleBin).buffer
     } catch {}
 
     console.log(`Loading from CDN: ${name} ...`)
@@ -113,6 +113,6 @@ export class SteamBundleLoader {
   ) {}
 
   async fetchFile (name: string): Promise<ArrayBuffer> {
-    return await fs.readFile(path.join(this.gameDir, BUNDLE_DIR, name))
+    return new Uint8Array(await fs.readFile(path.join(this.gameDir, BUNDLE_DIR, name))).buffer
   }
 }
